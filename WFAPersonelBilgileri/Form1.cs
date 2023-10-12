@@ -14,7 +14,7 @@ namespace WFAPersonelBilgileri
         private void btnResimSec_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "Jpg (.jpg)|*.jpg|Png(.png)|*.png";
+            ofd.Filter = "Jpg (.jpg)|*.jpg|Jpeg (.jpeg)|*.jpeg|Png(.png)|*.png";
             ofd.ShowDialog();
             dosyaYolu = ofd.FileName;
             pboxResim.ImageLocation = dosyaYolu;
@@ -34,7 +34,7 @@ namespace WFAPersonelBilgileri
                 personel1.Email = txtEmail.Text;
                 personel1.IseGirisTarihi = dtpIseGirisTarihi.Value;
                 personel1.ResimYolu = dosyaYolu;
-
+                MessageBox.Show("Kayit Basarili!");
                 People.Add(personel1);
                 ListViewDoldur();
                 FormuTemizle();
@@ -56,7 +56,7 @@ namespace WFAPersonelBilgileri
                 lvi.Text = personel.PersonelID.ToString();
                 lvi.SubItems.Add(personel.Ad);
                 lvi.SubItems.Add(personel.Soyad);
-                lvi.SubItems.Add(personel.DogumTarihi.ToString());
+                lvi.SubItems.Add(personel.DogumTarihi.ToShortDateString());
                 lvi.SubItems.Add(personel.Telefon.ToString());
                 lvi.SubItems.Add(personel.Email);
                 lvi.SubItems.Add(personel.ResimYolu);
@@ -75,6 +75,7 @@ namespace WFAPersonelBilgileri
             txtEmail.Clear();
             txtAdres.Clear();
             dtpIseGirisTarihi.Value = DateTime.Now;
+            pboxResim.ImageLocation = null;
         }
 
         int selectedIndex = 0;
@@ -83,20 +84,29 @@ namespace WFAPersonelBilgileri
 
             if (lvPersonelListesi.SelectedItems.Count > 0)
             {
-                selectedIndex = lvPersonelListesi.SelectedIndices[0];
-                btnResimSec.Enabled = true;
-                btnKaydet.Enabled = false;
-                btnGuncelle.Enabled = true;
-                btnSil.Enabled = true;
+                FormuDoldur(selectedIndex);
+                KaydetButonuAktifDegil();
             }
             else
             {
+                FormuTemizle();
+                KaydetButonuAktif();
+            }  
+        }
+        public void KaydetButonuAktifDegil()
+        {
+            selectedIndex = lvPersonelListesi.FocusedItem.Index;
+            btnResimSec.Enabled = true;
+            btnKaydet.Enabled = false;
+            btnGuncelle.Enabled = true;
+            btnSil.Enabled = true;
+        }
+        public void KaydetButonuAktif()
+        {
                 btnResimSec.Enabled = true;
                 btnKaydet.Enabled = true;
                 btnGuncelle.Enabled = false;
                 btnSil.Enabled = false;
-            }
-            FormuDoldur(selectedIndex);
         }
 
         public void FormuDoldur(int indeks)
@@ -114,23 +124,33 @@ namespace WFAPersonelBilgileri
 
         private void btnGuncelle_Click(object sender, EventArgs e)
         {
-            People[selectedIndex].PersonelID = int.Parse(txtPersonelID.Text);
-            People[selectedIndex].Ad = txtAd.Text;
-            People[selectedIndex].Soyad = txtSoyad.Text;
-            People[selectedIndex].Adres = txtAdres.Text;
-            People[selectedIndex].DogumTarihi = dtpDogumTarihi.Value;
-            People[selectedIndex].Telefon = mtbTelefon.Text;
-            People[selectedIndex].Email = txtEmail.Text;
-            People[selectedIndex].IseGirisTarihi = dtpIseGirisTarihi.Value;
-            People[selectedIndex].ResimYolu = dosyaYolu;
-
-            ListViewDoldur();
+            try
+            {
+                People[selectedIndex].PersonelID = int.Parse(txtPersonelID.Text);
+                People[selectedIndex].Ad = txtAd.Text;
+                People[selectedIndex].Soyad = txtSoyad.Text;
+                People[selectedIndex].Adres = txtAdres.Text;
+                People[selectedIndex].DogumTarihi = dtpDogumTarihi.Value;
+                People[selectedIndex].Telefon = mtbTelefon.Text;
+                People[selectedIndex].Email = txtEmail.Text;
+                People[selectedIndex].IseGirisTarihi = dtpIseGirisTarihi.Value;
+                People[selectedIndex].ResimYolu = dosyaYolu;
+                MessageBox.Show("Guncelleme Basarili!");
+                ListViewDoldur();
+                KaydetButonuAktif();
+                FormuTemizle();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void btnSil_Click(object sender, EventArgs e)
         {
             lvPersonelListesi.Items[selectedIndex].Remove();
             FormuTemizle();
+            KaydetButonuAktif();
         }
     }
 }
